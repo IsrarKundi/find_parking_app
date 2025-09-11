@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:loading_animation_widget/loading_animation_widget.dart';
 import 'package:responsive_sizer/responsive_sizer.dart';
 
 import '../../controller/utils/color.dart';
@@ -145,7 +146,7 @@ class CustomElevatedButton extends StatelessWidget {
               splashFactory: NoSplash.splashFactory, // No ripple (optional: replace with custom if needed)
               backgroundColor: backgroundColor ?? AppColor.primaryColor,
               padding: EdgeInsets.symmetric(
-                  horizontal: horizontalPadding ?? 8.h,
+                  horizontal: horizontalPadding ?? 2.h,
                   vertical: verticalPadding ?? 0.h),
               shape: RoundedRectangleBorder(
                 side: BorderSide(color: AppColor.primaryColor, width: 1.px),
@@ -157,8 +158,8 @@ class CustomElevatedButton extends StatelessWidget {
             child: isLoading ?? false
                 ? SizedBox(
               height: 20,
-              width: 20,
-              child: CircularProgressIndicator(strokeWidth: 3, color: textColor,),
+              // width: 20,
+              child: LoadingAnimationWidget.staggeredDotsWave(color: Colors.white, size: 35),
             )
                 : Text(
               text,

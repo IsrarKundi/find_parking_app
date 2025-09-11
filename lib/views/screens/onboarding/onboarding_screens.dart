@@ -12,19 +12,19 @@ class OnBoardingController extends GetxController {
   RxInt currentIndex = 0.obs;
   final List<Map<String, String>> onboardingData = [
     {
-      'image': 'assets/pngs/onboarding_pngs/onboarding1.png',
-      'title': 'Welcome to Parking Space Finder!',
+      'image': 'assets/pngs/onboarding_pngs/onboarding1.jpg',
+      'title': 'Welcome to Parking Buddy',
       'description':
       'Find the perfect parking spot near you with ease and convenience!',
     },
     {
-      'image': 'assets/pngs/onboarding_pngs/onboarding2.png',
+      'image': 'assets/pngs/onboarding_pngs/onboarding2.jpg',
       'title': 'Explore Nearby Parking',
       'description':
       'Discover available parking spaces, check prices, and reserve your spot in advance.',
     },
     {
-      'image': 'assets/pngs/onboarding_pngs/onboarding3.png',
+      'image': 'assets/pngs/onboarding_pngs/onboaring3.jpg',
       'title': 'Navigate with Confidence',
       'description':
       'Get turn-by-turn directions to your parking spot and enjoy a hassle-free parking experience.',
@@ -111,7 +111,7 @@ class OnBoardingScreen extends StatelessWidget {
           boxShadow: [
             BoxShadow(
               color: Colors.white.withOpacity(1),
-              blurRadius: 30,
+              blurRadius: 24,
               spreadRadius: 20,
               offset: const Offset(0, -10),
             ),
@@ -148,7 +148,7 @@ class OnBoardingScreen extends StatelessWidget {
               width: controller.currentIndex.value == index ? 9.w : 1.2.h,
               decoration: BoxDecoration(
                 color: controller.currentIndex.value == index
-                    ? AppColor.yellowColor
+                    ? AppColor.primaryColor
                     : AppColor.greyColor,
                 borderRadius: controller.currentIndex.value == index
                     ? BorderRadius.circular(9)

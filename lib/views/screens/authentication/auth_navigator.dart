@@ -1,4 +1,3 @@
-import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:responsive_sizer/responsive_sizer.dart';
@@ -23,55 +22,61 @@ class _AuthNavigatorState extends State<AuthNavigator> {
       body: Container(
         width: double.infinity,
         height: double.infinity,
-        decoration: BoxDecoration(
-          image: DecorationImage(
-            image: AssetImage('assets/pngs/authentication_pngs/auth_navigator_bg.png'),
-            fit: BoxFit.cover,
+        decoration: const BoxDecoration(
+          gradient: LinearGradient(
+            colors: [
+              Colors.green, // bright green
+              Colors.white, // light tone
+            ],
+            begin: Alignment.topLeft,
+            end: Alignment.bottomRight,
           ),
         ),
         child: Stack(
           alignment: Alignment.center,
           children: [
+            // Top row with two images
             Positioned(
               top: 14.h,
               child: SizedBox(
                 width: MediaQuery.of(context).size.width,
-                // height: MediaQuery.of(context).size.height * 0.7,
                 child: Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                   children: [
-                    Expanded(
-                      child: Image.asset(
-                        'assets/pngs/authentication_pngs/auth_navigator1.png',
-                        fit: BoxFit.cover,
-                      ),
-                    ),
-                    Expanded(
-                      child: Image.asset(
-                        'assets/pngs/authentication_pngs/auth_navigator2.png',
-                        fit: BoxFit.cover,
-                      ),
-                    ),
+                    _buildImageContainer('assets/pngs/onboarding_pngs/onboarding1.jpg'),
+                    _buildImageContainer('assets/pngs/onboarding_pngs/onboarding2.jpg'),
                   ],
-                )
+                ),
               ),
             ),
+
+            // Center image
             Positioned(
-              top: 38.h,
-              child: SizedBox(
-                  width: MediaQuery.of(context).size.width * 0.73,
-                  // height: MediaQuery.of(context).size.height * 0.2,
-                  child: Image.asset(
-                    'assets/pngs/authentication_pngs/auth_navigator3.png',
-                    fit: BoxFit.cover,
-                  )
+              top: 24.h,
+              child: _buildImageContainer(
+                'assets/pngs/onboarding_pngs/onboaring3.jpg',
+                width: MediaQuery.of(context).size.width * 0.5,
+                height: 29.h,
               ),
             ),
+
+            // Bottom white card with text & buttons
             Positioned(
-              top: 64.h,
+              bottom: 0,
               child: Container(
                 width: MediaQuery.of(context).size.width,
                 height: MediaQuery.of(context).size.height * 0.33,
-                color: Colors.white.withOpacity(0.8),
+                decoration: BoxDecoration(
+                  color: AppColor.whiteColor,
+                  boxShadow: [
+                    BoxShadow(
+                      color: Colors.white.withOpacity(1),
+                      blurRadius: 24,
+                      spreadRadius: 20,
+                      offset: const Offset(0, -10),
+                    ),
+                  ],
+                ),
                 padding: EdgeInsets.symmetric(horizontal: 4.h),
                 child: Column(
                   mainAxisAlignment: MainAxisAlignment.center,
@@ -79,11 +84,11 @@ class _AuthNavigatorState extends State<AuthNavigator> {
                     Padding(
                       padding: EdgeInsets.symmetric(horizontal: 3.h),
                       child: Text(
-                          'Find Parking with Ease!',
-                          style: AppTextStyles.titleBoldUpper.copyWith(
-                        fontSize: 19.sp,
-                      ),
-                      textAlign: TextAlign.center,
+                        'Find Parking with Ease!',
+                        style: AppTextStyles.titleBoldUpper.copyWith(
+                          fontSize: 19.sp,
+                        ),
+                        textAlign: TextAlign.center,
                       ),
                     ),
                     getVerticalSpace(height: .5.h),
@@ -96,21 +101,42 @@ class _AuthNavigatorState extends State<AuthNavigator> {
                       textAlign: TextAlign.center,
                     ),
                     SizedBox(height: 3.h),
-                    CustomElevatedButton(text: "Sign In", onPressed: () => Get.to(() => const LoginScreen())),
+                    CustomElevatedButton(
+                      text: "Sign In",
+                      onPressed: () => Get.to(() => const LoginScreen()),
+                    ),
                     CustomElevatedButton(
                       text: "Sign Up",
                       onPressed: () => Get.to(() => const RegisterScreen()),
                       backgroundColor: Colors.transparent,
-                     textColor: AppColor.primaryColor,
-                    )
-
+                      textColor: AppColor.primaryColor,
+                    ),
                   ],
                 ),
               ),
             ),
           ],
-        )
-      )
+        ),
+      ),
+    );
+  }
+
+  /// Reusable method for image containers with border & rounded corners
+  Widget _buildImageContainer(String assetPath, {double? width, double? height}) {
+    return Container(
+      width: width ?? 44.w,
+      height: height ?? 29.h,
+      decoration: BoxDecoration(
+        borderRadius: BorderRadius.circular(2.h),
+        border: Border.all(color: AppColor.whiteColor, width: 2),
+      ),
+      child: ClipRRect(
+        borderRadius: BorderRadius.circular(2.h),
+        child: Image.asset(
+          assetPath,
+          fit: BoxFit.cover,
+        ),
+      ),
     );
   }
 }

@@ -1,49 +1,94 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_svg/flutter_svg.dart';
 import 'package:get/get.dart';
 import 'package:responsive_sizer/responsive_sizer.dart';
 import '../../../controller/utils/color.dart';
 import '../../../controller/utils/text_styles.dart';
 import '../onboarding/onboarding_screens.dart';
-import '../../../main.dart';
 
-class SplashScreen extends StatelessWidget {
+class SplashScreen extends StatefulWidget {
   const SplashScreen({super.key});
 
   @override
-  Widget build(BuildContext context) {
-    Future.delayed(const Duration(seconds: 3), () {
-      Get.to(() => OnBoardingScreen());
-    });
+  State<SplashScreen> createState() => _SplashScreenState();
+}
 
+class _SplashScreenState extends State<SplashScreen>
+    with SingleTickerProviderStateMixin {
+  late AnimationController _controller;
+  late Animation<double> _scaleAnimation;
+  late Animation<double> _fadeAnimation;
+
+  @override
+  void initState() {
+    super.initState();
+
+    _controller =
+        AnimationController(vsync: this, duration: const Duration(seconds: 2));
+
+    _scaleAnimation =
+        CurvedAnimation(parent: _controller, curve: Curves.easeOutBack);
+
+    _fadeAnimation =
+        CurvedAnimation(parent: _controller, curve: Curves.easeIn);
+
+    _controller.forward();
+
+    // Navigate to OnBoarding after 3 seconds
+    Future.delayed(const Duration(seconds: 3), () {
+      Get.off(() => OnBoardingScreen());
+    });
+  }
+
+  @override
+  void dispose() {
+    _controller.dispose();
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) {
     return Scaffold(
       body: Container(
         width: double.infinity,
         height: double.infinity,
         decoration: const BoxDecoration(
-          image: DecorationImage(
-            image: AssetImage('assets/pngs/splash_bg.png'),
-            fit: BoxFit.cover,
-          ),
-        ),
+  gradient: LinearGradient(
+    colors: [
+      Color(0xFF00C853), // bright green
+      Color(0xFF43A047), // deep green
+    ],
+    begin: Alignment.topLeft,
+    end: Alignment.bottomRight,
+  ),
+),
         child: Center(
           child: Column(
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
-              // SVG Logo
-              SvgPicture.asset(
-                'assets/svgs/logo.svg',
-                height: 20.h, // Add size to match design proportions
-                width: 20.h,
+              // Animated Logo
+              ScaleTransition(
+                scale: _scaleAnimation,
+                child: FadeTransition(
+                  opacity: _fadeAnimation,
+                  child: Image.asset(
+                    'assets/svgs/parking_logo.png',
+                    height: 22.h,
+                    width: 22.h,
+                  ),
+                ),
               ),
-              SizedBox(height: 2.h), // Spacing between logo and text
-              // "Parking Space Finder" text
-              Text(
-                'Parking Space Finder',
-                style: AppTextStyles.bodyRegularUpper.copyWith(
-                  fontWeight: FontWeight.bold,
-                  fontSize: 18.sp,
-                  color: AppColor.primaryColor,
+              SizedBox(height: 0.h),
+              // Animated Text
+              FadeTransition(
+                opacity: _fadeAnimation,
+                child: Text(
+                  'Parking Buddy',
+                  style: AppTextStyles.bodyBoldLower.copyWith(
+                    fontWeight: FontWeight.bold,
+                    fontSize: 20.sp,
+                    color: AppColor.whiteColor,
+                    letterSpacing: 2,
+                  ),
                 ),
               ),
             ],
