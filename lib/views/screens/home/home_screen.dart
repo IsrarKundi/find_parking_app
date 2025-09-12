@@ -61,32 +61,76 @@ class _HomeScreenState extends State<HomeScreen> {
 
   void _onMarkerTap(MarkerId markerId) async {
     final marker = _homeController.markers.firstWhere((m) => m.markerId == markerId);
-    
-    final result = await Get.dialog<bool>(
+    final parking = _homeController.parkingLots.value!.data.firstWhere((p) => p.id == markerId.value);
+
+    await Get.dialog(
       AlertDialog(
-        title: const Text('Navigation'),
-        content: const Text('Would you like to navigate to this parking spot?'),
+        title: Text(
+          'Parking Details',
+          style: AppTextStyles.titleBoldUpper.copyWith(
+            color: AppColor.blackColor,
+            fontSize: 18.sp,
+          ),
+        ),
+        content: Column(
+          mainAxisSize: MainAxisSize.min,
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Text(
+              parking.username,
+              style: AppTextStyles.bodyBoldUpper.copyWith(
+                color: AppColor.blackColor,
+                fontSize: 16.sp,
+              ),
+            ),
+            getVerticalSpace(height: 1.h),
+            Text(
+              'Available Spots: ${parking.availableParkingSpots}',
+              style: AppTextStyles.bodyRegularUpper.copyWith(
+                color: AppColor.darkGreyColor,
+                fontSize: 14.sp,
+              ),
+            ),
+            getVerticalSpace(height: 0.5.h),
+            Text(
+              'Price: Rs. ${parking.pricePerSlot}/hour',
+              style: AppTextStyles.bodyRegularUpper.copyWith(
+                color: AppColor.darkGreyColor,
+                fontSize: 14.sp,
+              ),
+            ),
+          ],
+        ),
         actions: [
           TextButton(
-            onPressed: () => Get.back(result: false),
-            child: const Text('Cancel'),
+            onPressed: () => Get.back(),
+            child: Text(
+              'Close',
+              style: AppTextStyles.bodyRegularUpper.copyWith(
+                color: AppColor.primaryColor,
+              ),
+            ),
           ),
-          TextButton(
-            onPressed: () => Get.back(result: true),
-            child: const Text('Navigate'),
+          SizedBox(
+            width: 120,
+            child: CustomElevatedButton(
+              text: 'Navigate',
+              onPressed: () {
+                Get.back();
+                final position = marker.position;
+                Get.to(() => NavigationScreen(
+                  destinationLat: position.latitude,
+                  destinationLng: position.longitude,
+                  destinationName: parking.username,
+                ));
+              },
+              horizontalPadding: 1.h,
+              verticalPadding: 0.5.h,
+            ),
           ),
         ],
       ),
     );
-
-    if (result == true) {
-      final position = marker.position;
-      Get.to(() => NavigationScreen(
-        destinationLat: position.latitude,
-        destinationLng: position.longitude,
-        destinationName: marker.infoWindow.title ?? 'Parking Spot',
-      ));
-    }
   }
 
   void _onMapTapped(LatLng position) {

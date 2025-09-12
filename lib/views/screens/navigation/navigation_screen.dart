@@ -2,6 +2,9 @@ import 'package:flutter/material.dart';
 import 'package:responsive_sizer/responsive_sizer.dart';
 import 'package:mapbox_maps_flutter/mapbox_maps_flutter.dart';
 import 'package:geolocator/geolocator.dart' as geo;
+import 'dart:async';
+import 'package:flutter/services.dart';
+import 'dart:ui' as ui;
 
 import '../../../controller/utils/color.dart';
 import '../../../controller/utils/text_styles.dart';
@@ -29,6 +32,9 @@ class _NavigationScreenState extends State<NavigationScreen> {
   geo.Position? _currentPosition;
   bool _isNavigating = false;
   PolylineAnnotationManager? _polylineAnnotationManager;
+  StreamSubscription<geo.Position>? _positionStreamSubscription;
+  PointAnnotation? _userAnnotation;
+  PointAnnotation? _destinationAnnotation;
 
   @override
   void initState() {
@@ -43,8 +49,23 @@ class _NavigationScreenState extends State<NavigationScreen> {
         if (_mapboxMap != null) {
           await _moveCameraToUser();
         }
-        await _updateRoute();
       }
+
+      // Start listening to position updates
+      _positionStreamSubscription = geo.Geolocator.getPositionStream(
+        locationSettings: const geo.LocationSettings(
+          accuracy: geo.LocationAccuracy.high,
+          distanceFilter: 10, // Update every 10 meters
+        ),
+      ).listen((geo.Position position) {
+        setState(() {
+          _currentPosition = position;
+        });
+        _updateUserMarker();
+        if (_isNavigating) {
+          _updateRoute();
+        }
+      });
     } catch (e) {
       print('Error initializing navigation: $e');
     }
@@ -102,9 +123,23 @@ class _NavigationScreenState extends State<NavigationScreen> {
     _mapboxMap = mapboxMap;
     mapboxMap.annotations.createPointAnnotationManager().then((value) async {
       _pointAnnotationManager = value;
+
+      // Load and add custom images to the map style
+      final locationBytes = await _loadImage('assets/pngs/map_icons/location.png');
+      final arrowBytes = await _loadImage('assets/pngs/map_icons/arrow.png');
+      await (_mapboxMap!.style as dynamic).addImage('location-icon', locationBytes);
+      await (_mapboxMap!.style as dynamic).addImage('arrow-icon', arrowBytes);
+
       await _addUserMarker();
       await _addDestinationMarker();
       await _moveCameraToUser();
+    });
+
+    // Add re-center button
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (mounted) {
+        setState(() {});
+      }
     });
   }
 
@@ -118,13 +153,15 @@ class _NavigationScreenState extends State<NavigationScreen> {
           widget.destinationLat,
         ),
       ),
+      iconImage: 'arrow',
       iconSize: 1.0,
     );
-    await _pointAnnotationManager!.create(options);
+    _destinationAnnotation = await _pointAnnotationManager!.create(options);
   }
 
   Future<void> _addUserMarker() async {
     if (_pointAnnotationManager == null || _currentPosition == null) return;
+
     final options = PointAnnotationOptions(
       geometry: Point(
         coordinates: Position(
@@ -132,15 +169,60 @@ class _NavigationScreenState extends State<NavigationScreen> {
           _currentPosition!.latitude,
         ),
       ),
+      iconImage: 'location',
       iconSize: 1.0,
+      iconRotate: _currentPosition!.heading,
     );
-    await _pointAnnotationManager!.create(options);
+    _userAnnotation = await _pointAnnotationManager!.create(options);
+  }
+
+  Future<void> _updateUserMarker() async {
+    if (_userAnnotation != null) {
+      await _pointAnnotationManager!.delete(_userAnnotation!);
+    }
+    await _addUserMarker();
+  }
+
+  Future<Uint8List> _loadImage(String path) async {
+    final data = await rootBundle.load(path);
+    final codec = await ui.instantiateImageCodec(data.buffer.asUint8List());
+    final frame = await codec.getNextFrame();
+    final byteData = await frame.image.toByteData(format: ui.ImageByteFormat.png);
+    return byteData!.buffer.asUint8List();
   }
 
   @override
   void dispose() {
+    _positionStreamSubscription?.cancel();
+    _polylineAnnotationManager?.deleteAll();
     _mapboxMap?.dispose();
     super.dispose();
+  }
+
+  Future<void> _clearRoute() async {
+    if (_polylineAnnotationManager != null) {
+      await _polylineAnnotationManager!.deleteAll();
+    }
+  }
+
+  Future<void> _zoomToRoute() async {
+    if (_mapboxMap == null || _polylineAnnotationManager == null) return;
+    // For simplicity, zoom to 15
+    await _mapboxMap!.setCamera(
+      CameraOptions(
+        zoom: 15.0,
+      ),
+    );
+  }
+
+  Future<void> _zoomOut() async {
+    if (_mapboxMap == null) return;
+    // Zoom out to 10 or a broader view
+    await _mapboxMap!.setCamera(
+      CameraOptions(
+        zoom: 10.0,
+      ),
+    );
   }
 
   @override
@@ -175,12 +257,16 @@ class _NavigationScreenState extends State<NavigationScreen> {
             left: 16,
             right: 16,
             child: ElevatedButton(
-              onPressed: () {
+              onPressed: () async {
                 setState(() {
                   _isNavigating = !_isNavigating;
                 });
                 if (_isNavigating) {
-                  _updateRoute();
+                  await _updateRoute();
+                  await _zoomToRoute();
+                } else {
+                  await _clearRoute();
+                  await _zoomOut();
                 }
               },
               style: ElevatedButton.styleFrom(
@@ -193,6 +279,18 @@ class _NavigationScreenState extends State<NavigationScreen> {
                   fontSize: 18.sp,
                   color: AppColor.whiteColor,
                 ),
+              ),
+            ),
+          ),
+          Positioned(
+            bottom: 100,
+            right: 16,
+            child: FloatingActionButton(
+              onPressed: _moveCameraToUser,
+              backgroundColor: AppColor.primaryColor,
+              child: Icon(
+                Icons.my_location,
+                color: AppColor.whiteColor,
               ),
             ),
           ),

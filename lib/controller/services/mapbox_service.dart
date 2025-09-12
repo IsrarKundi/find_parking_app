@@ -1,6 +1,7 @@
 import 'package:mapbox_maps_flutter/mapbox_maps_flutter.dart' as mapbox;
 import 'package:geolocator/geolocator.dart' as geo;
 import 'package:http/http.dart' as http;
+import 'dart:convert';
 
 class MapboxService {
   static const String _accessToken = 'pk.eyJ1IjoiaXNyYXJrMzEzIiwiYSI6ImNtZmg2ZnpieDA4MmIyanF0cGJheThyYXEifQ.BFlPl5Zn1zSIVkcb4hMzDQ';
@@ -17,15 +18,28 @@ class MapboxService {
         'geometries': 'geojson',
       });
 
-      // TODO: Implement HTTP request to get route
-      // You'll need to add http package and make the API call
-      // Return the route geometry and other relevant data
+      final response = await http.get(uri);
 
-      return {
-        'geometry': [], // This will be the route coordinates
-        'distance': 0,
-        'duration': 0,
-      };
+      if (response.statusCode == 200) {
+        final data = jsonDecode(response.body);
+        final routes = data['routes'] as List<dynamic>;
+        if (routes.isNotEmpty) {
+          final route = routes[0] as Map<String, dynamic>;
+          final geometry = route['geometry']['coordinates'] as List<dynamic>;
+          final distance = route['distance'] as double;
+          final duration = route['duration'] as double;
+
+          return {
+            'geometry': geometry,
+            'distance': distance,
+            'duration': duration,
+          };
+        } else {
+          throw Exception('No routes found');
+        }
+      } else {
+        throw Exception('Failed to fetch route: ${response.statusCode}');
+      }
     } catch (e) {
       throw Exception('Failed to get navigation route: $e');
     }

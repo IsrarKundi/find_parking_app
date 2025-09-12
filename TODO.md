@@ -1,0 +1,4 @@
+- [x] Modify _onMarkerTap in lib/views/screens/home/home_screen.dart to show a custom dialog with parking details (name, available spots, price).
+- [x] Use CustomElevatedButton for "Navigate" and "Close" buttons in the popup.
+- [x] Retrieve parking data from _homeController.parkingLots.value!.data using markerId.
+- [ ] Test the popup functionality on marker tap.

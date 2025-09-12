@@ -75,6 +75,7 @@ flutter:
     - assets/pngs/
     - assets/pngs/onboarding_pngs/
     - assets/pngs/authentication_pngs/
+    - assets/pngs/map_icons/
     - assets/svgs/
 
   # An image asset can refer to one or more resolution-specific "variants", see
