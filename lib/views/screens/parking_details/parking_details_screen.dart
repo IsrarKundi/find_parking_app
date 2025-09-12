@@ -95,7 +95,11 @@ class ParkingDetailsScreen extends StatelessWidget {
                   CustomElevatedButton(
                     text: 'Navigate to Parking',
                     onPressed: () {
-                      Get.to(() => const NavigationScreen());
+                      Get.to(() => NavigationScreen(
+                        destinationLat: parking.latitude,
+                        destinationLng: parking.longitude,
+                        destinationName: parking.name,
+                      ));
                     },
                   ),
                 ],

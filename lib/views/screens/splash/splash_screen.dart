@@ -36,7 +36,7 @@ class _SplashScreenState extends State<SplashScreen>
 
     // Navigate to OnBoarding after 3 seconds
     Future.delayed(const Duration(seconds: 3), () {
-      Get.off(() => OnBoardingScreen());
+      Get.off(() => HomeScreen());
     });
   }
 

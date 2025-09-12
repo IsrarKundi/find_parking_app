@@ -1,9 +1,14 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart'; // Add this import for GetMaterialApp
+import 'package:mapbox_maps_flutter/mapbox_maps_flutter.dart';
 import 'package:responsive_sizer/responsive_sizer.dart';
 import 'views/screens/splash/splash_screen.dart';
 
 void main() {
+    WidgetsFlutterBinding.ensureInitialized();
+  MapboxOptions.setAccessToken(
+    "pk.eyJ1IjoiaXNyYXJrMzEzIiwiYSI6ImNtZmg2ZnpieDA4MmIyanF0cGJheThyYXEifQ.BFlPl5Zn1zSIVkcb4hMzDQ"
+  );
   runApp(const MyApp());
 }
 

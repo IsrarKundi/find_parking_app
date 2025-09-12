@@ -10,8 +10,8 @@ import '../../../controller/utils/shared_preferences_service.dart';
 import '../../../controller/utils/text_styles.dart';
 import '../../../controller/getx_controllers/user_home_controller.dart';
 import '../../custom_widgets/custom_widgets.dart';
-import '../parking_details/parking_details_screen.dart';
 import '../profile/profile_screen.dart';
+import '../navigation/navigation_screen.dart';
 
 class HomeScreen extends StatefulWidget {
   const HomeScreen({super.key});
@@ -57,6 +57,40 @@ class _HomeScreenState extends State<HomeScreen> {
     if (mounted) {
       _userProfileImage.value = image ?? '';
     }
+  }
+
+  void _onMarkerTap(MarkerId markerId) async {
+    final marker = _homeController.markers.firstWhere((m) => m.markerId == markerId);
+    
+    final result = await Get.dialog<bool>(
+      AlertDialog(
+        title: const Text('Navigation'),
+        content: const Text('Would you like to navigate to this parking spot?'),
+        actions: [
+          TextButton(
+            onPressed: () => Get.back(result: false),
+            child: const Text('Cancel'),
+          ),
+          TextButton(
+            onPressed: () => Get.back(result: true),
+            child: const Text('Navigate'),
+          ),
+        ],
+      ),
+    );
+
+    if (result == true) {
+      final position = marker.position;
+      Get.to(() => NavigationScreen(
+        destinationLat: position.latitude,
+        destinationLng: position.longitude,
+        destinationName: marker.infoWindow.title ?? 'Parking Spot',
+      ));
+    }
+  }
+
+  void _onMapTapped(LatLng position) {
+    // Handle map tap if needed
   }
 
   @override
@@ -121,7 +155,12 @@ class _HomeScreenState extends State<HomeScreen> {
               onMapCreated: (GoogleMapController controller) {
                 _controller.complete(controller);
               },
-              markers: _homeController.markers.toSet(),
+              markers: _homeController.markers.map((marker) {
+                return marker.copyWith(
+                  onTapParam: () => _onMarkerTap(marker.markerId),
+                );
+              }).toSet(),
+              onTap: _onMapTapped,
               myLocationEnabled: true,
               myLocationButtonEnabled: true,
               zoomControlsEnabled: true,
