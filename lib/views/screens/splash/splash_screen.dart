@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import 'package:parking_app/views/screens/home/home_screen.dart';
 import 'package:responsive_sizer/responsive_sizer.dart';
 import '../../../controller/utils/color.dart';
 import '../../../controller/utils/text_styles.dart';
@@ -35,7 +36,7 @@ class _SplashScreenState extends State<SplashScreen>
 
     // Navigate to OnBoarding after 3 seconds
     Future.delayed(const Duration(seconds: 3), () {
-      Get.off(() => OnBoardingScreen());
+      Get.off(() => HomeScreen());
     });
   }
 

@@ -1,14 +1,16 @@
+import 'dart:developer';
 import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:image_picker/image_picker.dart';
 
 import '../api_services/profile_apis.dart';
+import '../utils/shared_preferences_service.dart';
 import '../../models/get_user_profile_model.dart';
 
 class ProfileController extends GetxController {
   final ProfileApis _profileApis = ProfileApis();
-
+  
   // Observable variables
   var isLoading = false.obs;
   var userProfile = Rx<GetUserProfileModel?>(null);
@@ -189,155 +191,168 @@ class ProfileController extends GetxController {
   }
 
   // Upload selected image
-  Future<String?> uploadSelectedImage() async {
-    if (selectedImage.value == null) {
-      Get.snackbar(
-        'Error',
-        'No image selected',
-        snackPosition: SnackPosition.BOTTOM,
-        backgroundColor: Colors.red,
-        colorText: Colors.white,
-      );
-      return null;
-    }
-
-    // Validate file before upload
-    if (!await selectedImage.value!.exists()) {
-      Get.snackbar(
-        'Error',
-        'Image file no longer exists',
-        snackPosition: SnackPosition.BOTTOM,
-        backgroundColor: Colors.red,
-        colorText: Colors.white,
-      );
-      selectedImage.value = null;
-      return null;
-    }
-
-    final fileSize = await selectedImage.value!.length();
-    if (fileSize == 0) {
-      Get.snackbar(
-        'Error',
-        'Image file is empty',
-        snackPosition: SnackPosition.BOTTOM,
-        backgroundColor: Colors.red,
-        colorText: Colors.white,
-      );
-      selectedImage.value = null;
-      return null;
-    }
-
-    imageUploadLoading.value = true;
-
-    try {
-      final response = await _profileApis.uploadProfileImage(
-        imageFile: selectedImage.value!,
-      );
-
-      if (response['success'] == true) {
-        final imageUrl = response['data']['imageUrl'] ?? response['data']['image'];
-        if (imageUrl != null && imageUrl.toString().isNotEmpty) {
-          return imageUrl.toString();
-        } else {
-          Get.snackbar(
-            'Error',
-            'Invalid image URL received from server',
-            snackPosition: SnackPosition.BOTTOM,
-            backgroundColor: Colors.red,
-            colorText: Colors.white,
-          );
-          return null;
-        }
-      } else {
-        Get.snackbar(
-          'Error',
-          response['message'] ?? 'Failed to upload image',
-          snackPosition: SnackPosition.BOTTOM,
-          backgroundColor: Colors.red,
-          colorText: Colors.white,
-        );
-        return null;
-      }
-    } catch (e) {
-      Get.snackbar(
-        'Error',
-        'Failed to upload image: ${e.toString()}',
-        snackPosition: SnackPosition.BOTTOM,
-        backgroundColor: Colors.red,
-        colorText: Colors.white,
-      );
-      return null;
-    } finally {
-      imageUploadLoading.value = false;
-    }
+Future<String?> uploadSelectedImage() async {
+  if (selectedImage.value == null) {
+    Get.snackbar(
+      'Error',
+      'No image selected',
+      snackPosition: SnackPosition.BOTTOM,
+      backgroundColor: Colors.red,
+      colorText: Colors.white,
+    );
+    return null;
   }
+
+  // Validate file before upload
+  if (!await selectedImage.value!.exists()) {
+    Get.snackbar(
+      'Error',
+      'Image file no longer exists',
+      snackPosition: SnackPosition.BOTTOM,
+      backgroundColor: Colors.red,
+      colorText: Colors.white,
+    );
+    selectedImage.value = null;
+    return null;
+  }
+
+  final fileSize = await selectedImage.value!.length();
+  if (fileSize == 0) {
+    Get.snackbar(
+      'Error',
+      'Image file is empty',
+      snackPosition: SnackPosition.BOTTOM,
+      backgroundColor: Colors.red,
+      colorText: Colors.white,
+    );
+    selectedImage.value = null;
+    return null;
+  }
+
+  imageUploadLoading.value = true;
+
+  try {
+    final response = await _profileApis.uploadProfileImage(
+      imageFile: selectedImage.value!,
+    );
+    log("reponse in controller: $response");
+    final imageUrl = response['imageUrl'] ?? response['image'];
+
+    if (imageUrl != null && imageUrl.toString().isNotEmpty) {
+      print("🖼️ Image upload successful - URL: $imageUrl");
+      return imageUrl.toString();
+    } else {
+      Get.snackbar(
+        'Error',
+        'Invalid image URL received from server',
+        snackPosition: SnackPosition.BOTTOM,
+        backgroundColor: Colors.red,
+        colorText: Colors.white,
+      );
+      return null;
+    }
+  } catch (e) {
+    Get.snackbar(
+      'Error',
+      'Failed to upload image: ${e.toString()}',
+      snackPosition: SnackPosition.BOTTOM,
+      backgroundColor: Colors.red,
+      colorText: Colors.white,
+    );
+    return null;
+  } finally {
+    imageUploadLoading.value = false;
+  }
+}
 
   // Update profile with image upload
-  Future<void> updateProfileWithImage({
-    required String username,
-  }) async {
-    // Validate input
-    if (username.trim().isEmpty) {
-      Get.snackbar(
-        'Validation Error',
-        'Please enter a valid name',
-        snackPosition: SnackPosition.BOTTOM,
-        backgroundColor: Colors.red,
-        colorText: Colors.white,
-      );
-      return;
+Future<void> updateProfileWithImage({
+  required String username,
+}) async {
+  // Validate input
+  if (username.trim().isEmpty) {
+    Get.snackbar(
+      'Validation Error',
+      'Please enter a valid name',
+      snackPosition: SnackPosition.BOTTOM,
+      backgroundColor: Colors.red,
+      colorText: Colors.white,
+    );
+    return;
+  }
+
+  isLoading.value = true;
+
+  try {
+    String? imageUrl;
+
+    // First handle image upload if there's a new image
+    if (selectedImage.value != null) {
+      log("selected image file path: ${selectedImage.value!.path}");
+      final uploadResponse = await uploadSelectedImage();
+      
+      // Check if image upload was successful
+      if (uploadResponse == null) {
+        isLoading.value = false;
+        return; // Exit early if image upload failed
+      }
+      
+      imageUrl = uploadResponse;
+      log("imageUrl after upload: $imageUrl");
     }
 
-    isLoading.value = true;
+    // Now update profile with the new image URL (if any)
+    final response = await _profileApis.updateUserProfile(
+      username: username.trim(),
+      image: imageUrl, // Will be null if no new image was uploaded
+    );
 
-    try {
-      String? imageUrl;
-
-      // Upload image if selected
-      if (selectedImage.value != null) {
-        imageUrl = await uploadSelectedImage();
-        // Don't return here - continue with profile update even if image upload fails
-        // The imageUrl will be null, which is fine for the API
+    if (response['success'] == true) {
+      // Update image in SharedPreferences if it was changed
+      if (imageUrl != null) {
+        await SharedPreferencesService.updateUserData(image: imageUrl);
+        // Update the userProfile model with new image
+        if (userProfile.value != null) {
+          userProfile.value?.data.image = imageUrl;
+          userProfile.refresh(); // Force UI update
+        }
       }
-
-      // Update profile
-      final response = await _profileApis.updateUserProfile(
-        username: username.trim(),
-        image: imageUrl,
+      
+      Get.snackbar(
+        'Success',
+        response['message'] ?? 'Profile updated successfully',
+        snackPosition: SnackPosition.BOTTOM,
+        backgroundColor: Colors.green,
+        colorText: Colors.white,
       );
-
-      if (response['success'] == true) {
-        Get.snackbar(
-          'Success',
-          response['message'] ?? 'Profile updated successfully',
-          snackPosition: SnackPosition.BOTTOM,
-          backgroundColor: Colors.green,
-          colorText: Colors.white,
-        );
-        // Clear selected image and refresh profile data
-        selectedImage.value = null;
-        await fetchUserProfile();
-      } else {
-        Get.snackbar(
-          'Error',
-          response['message'] ?? 'Failed to update profile',
-          snackPosition: SnackPosition.BOTTOM,
-          backgroundColor: Colors.red,
-          colorText: Colors.white,
-        );
-      }
-    } catch (e) {
+      // Clear selected image and refresh profile data
+      selectedImage.value = null;
+      // Fetch fresh data from server
+      await fetchUserProfile();
+      
+      // Notify all listening widgets to rebuild
+      update(['profile_image']); // Update specific widgets with this ID
+    } else {
       Get.snackbar(
         'Error',
-        'Failed to update profile: ${e.toString()}',
+        response['message'] ?? 'Failed to update profile',
         snackPosition: SnackPosition.BOTTOM,
         backgroundColor: Colors.red,
         colorText: Colors.white,
       );
-    } finally {
-      isLoading.value = false;
     }
+  } catch (e) {
+    Get.snackbar(
+      'Error',
+      'Failed to update profile: ${e.toString()}',
+      snackPosition: SnackPosition.BOTTOM,
+      backgroundColor: Colors.red,
+      colorText: Colors.white,
+    );
+  } finally {
+    isLoading.value = false;
   }
+}
 
   // Get user display name
   String get userDisplayName {

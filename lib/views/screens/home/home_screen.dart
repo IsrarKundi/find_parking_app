@@ -6,6 +6,7 @@ import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'package:responsive_sizer/responsive_sizer.dart';
 
 import '../../../controller/utils/color.dart';
+import '../../../controller/utils/shared_preferences_service.dart';
 import '../../../controller/utils/text_styles.dart';
 import '../../../data/dummy_parking_data.dart';
 import '../../../models/parking_model.dart';
@@ -23,6 +24,7 @@ class HomeScreen extends StatefulWidget {
 class _HomeScreenState extends State<HomeScreen> {
   final Completer<GoogleMapController> _controller = Completer<GoogleMapController>();
   final Set<Marker> _markers = {};
+  final _userProfileImage = RxString('');
 
   static const CameraPosition _kPeshawar = CameraPosition(
     target: LatLng(34.0151, 71.5249),
@@ -33,6 +35,14 @@ class _HomeScreenState extends State<HomeScreen> {
   void initState() {
     super.initState();
     _loadMarkers();
+    _loadUserImage();
+  }
+
+  Future<void> _loadUserImage() async {
+    final image = await SharedPreferencesService.getUserImage();
+    if (mounted) {
+      _userProfileImage.value = image ?? '';
+    }
   }
 
   void _loadMarkers() {
@@ -83,21 +93,26 @@ class _HomeScreenState extends State<HomeScreen> {
         actions: [
           Padding(
             padding: const EdgeInsets.only(right: 12.0),
-            child: CircleAvatar(
-              backgroundColor: AppColor.whiteColor,
-              radius: 18.sp,
-              
-              child: GestureDetector(
-                // color: AppColor.yellowColor,
-                child: Icon(
-                  Icons.person,
-                  color: AppColor.darkGreyColor,
-                  size: 24.sp,
-                ),
-                onTap: () {
-                  Get.to(() => const ProfileScreen());
-                },
-              ),
+            child: GestureDetector(
+              onTap: () async {
+                await Get.to(() => const ProfileScreen());
+                // Refresh profile image when returning from profile screen
+                _loadUserImage();
+              },
+              child: Obx(() => CircleAvatar(
+                backgroundColor: AppColor.whiteColor,
+                radius: 18.sp,
+                backgroundImage: _userProfileImage.value.isNotEmpty
+                    ? NetworkImage(_userProfileImage.value)
+                    : null,
+                child: _userProfileImage.value.isEmpty
+                    ? Icon(
+                        Icons.person, 
+                        color: AppColor.darkGreyColor,
+                        size: 24.sp,
+                      )
+                    : null,
+              )),
             ),
           ),
         ],

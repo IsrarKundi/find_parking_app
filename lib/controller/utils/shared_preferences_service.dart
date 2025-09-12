@@ -8,6 +8,7 @@ class SharedPreferencesService {
   static const String _roleKey = 'role';
   static const String _lngKey = 'lng';
   static const String _latKey = 'lat';
+  static const String _imageKey = 'image';
   static const String _isLoggedInKey = 'is_logged_in';
 
   // Save user data after successful login
@@ -21,6 +22,7 @@ class SharedPreferencesService {
     await prefs.setString(_roleKey, userData['role'] ?? '');
     await prefs.setDouble(_lngKey, userData['lng'] ?? 0.0);
     await prefs.setDouble(_latKey, userData['lat'] ?? 0.0);
+    await prefs.setString(_imageKey, userData['image'] ?? '');
     await prefs.setBool(_isLoggedInKey, true);
   }
 
@@ -42,8 +44,15 @@ class SharedPreferencesService {
       'role': prefs.getString(_roleKey) ?? '',
       'lng': prefs.getDouble(_lngKey) ?? 0.0,
       'lat': prefs.getDouble(_latKey) ?? 0.0,
+      'image': prefs.getString(_imageKey) ?? '',
       'isLoggedIn': prefs.getBool(_isLoggedInKey) ?? false,
     };
+  }
+
+  // Get stored user image
+  static Future<String?> getUserImage() async {
+    final prefs = await SharedPreferences.getInstance();
+    return prefs.getString(_imageKey);
   }
 
   // Check if user is logged in
@@ -65,6 +74,7 @@ class SharedPreferencesService {
     String? role,
     double? lng,
     double? lat,
+    String? image,
   }) async {
     final prefs = await SharedPreferences.getInstance();
 
@@ -73,5 +83,6 @@ class SharedPreferencesService {
     if (role != null) await prefs.setString(_roleKey, role);
     if (lng != null) await prefs.setDouble(_lngKey, lng);
     if (lat != null) await prefs.setDouble(_latKey, lat);
+    if (image != null) await prefs.setString(_imageKey, image);
   }
 }

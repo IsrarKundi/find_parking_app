@@ -1,4 +1,5 @@
 import 'dart:convert';
+import 'dart:developer';
 import 'package:http/http.dart' as http;
 
 import '../utils/base_url.dart';
@@ -85,7 +86,7 @@ class AuthApis {
       );
 
       final responseData = jsonDecode(response.body);
-
+      log("Login response: ${response.body}");
       if (response.statusCode == 200 && responseData['success'] == true) {
         return responseData;
       } else {

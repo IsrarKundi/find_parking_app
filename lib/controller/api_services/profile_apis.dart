@@ -11,7 +11,7 @@ import '../utils/shared_preferences_service.dart';
 import '../../models/get_user_profile_model.dart';
 
 class ProfileApis {
-  final String _baseUrl = baseUrl;
+  final String _baseUrl = baseUrl; 
 
   // Get User Profile API
   Future<Map<String, dynamic>> getUserProfile() async {
@@ -37,6 +37,11 @@ class ProfileApis {
       );
       log("get profile response: ${response.body}");
       final responseData = jsonDecode(response.body);
+
+      // Log the image field specifically
+      if (responseData['success'] == true && responseData['data'] != null) {
+        log("Profile image field: ${responseData['data']['image']}");
+      }
 
       if (response.statusCode == 200 && responseData['success'] == true) {
         return responseData;
@@ -87,6 +92,9 @@ class ProfileApis {
         if (image != null) 'image': image,
       });
 
+      log("Update profile request - username: $username, image: $image");
+      log("Update profile request body: $body");
+
       final response = await http.put(
         url,
         headers: {
@@ -97,6 +105,7 @@ class ProfileApis {
       );
 
       final responseData = jsonDecode(response.body);
+      log("Update profile response: ${response.body}");
 
       if ((response.statusCode == 200 || response.statusCode == 201) && responseData['success'] == true) {
         return responseData;
@@ -211,7 +220,7 @@ class ProfileApis {
       final responseData = jsonDecode(response.body);
       log("responseData: $responseData");
 
-      if ((response.statusCode == 200 || response.statusCode == 201) && responseData['success'] == true) {
+      if ((response.statusCode == 200 || response.statusCode == 201)) {
         return responseData;
       } else {
         // Handle different error response formats
