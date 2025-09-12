@@ -6,6 +6,7 @@ import '../../../controller/utils/text_styles.dart';
 import '../../custom_widgets/custom_widgets.dart';
 import '../authentication/auth_navigator.dart';
 import '../authentication/login_screen.dart';
+import '../../../controller/utils/shared_preferences_service_extension.dart';
 
 class OnBoardingController extends GetxController {
   final PageController pageController = PageController();
@@ -32,19 +33,21 @@ class OnBoardingController extends GetxController {
   ];
 
   // Navigate to the next page or to AuthNavigator if at the last page
-  void goToNextOrLogin() {
+  void goToNextOrLogin() async {
     if (currentIndex.value < onboardingData.length - 1) {
       pageController.nextPage(
         duration: const Duration(milliseconds: 300),
         curve: Curves.easeInOut,
       );
     } else {
+      await SharedPreferencesServiceExtension.setOnboardingCompleted(true);
       Get.off(() => const AuthNavigator()); // Replace OnBoardingScreen with AuthNavigator
     }
   }
 
   // Skip directly to AuthNavigator
-  void skipToMain() {
+  void skipToMain() async {
+    await SharedPreferencesServiceExtension.setOnboardingCompleted(true);
     Get.off(() => const AuthNavigator()); // Replace OnBoardingScreen with AuthNavigator
   }
 }

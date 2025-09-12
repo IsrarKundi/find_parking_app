@@ -4,7 +4,10 @@ import 'package:parking_app/views/screens/home/home_screen.dart';
 import 'package:responsive_sizer/responsive_sizer.dart';
 import '../../../controller/utils/color.dart';
 import '../../../controller/utils/text_styles.dart';
+import '../../../controller/utils/shared_preferences_service.dart';
+import '../../../controller/utils/shared_preferences_service_extension.dart';
 import '../onboarding/onboarding_screens.dart';
+import '../authentication/auth_navigator.dart';
 
 class SplashScreen extends StatefulWidget {
   const SplashScreen({super.key});
@@ -34,9 +37,18 @@ class _SplashScreenState extends State<SplashScreen>
 
     _controller.forward();
 
-    // Navigate to OnBoarding after 3 seconds
-    Future.delayed(const Duration(seconds: 3), () {
-      Get.off(() => HomeScreen());
+    // Navigate based on onboarding and auth status after 3 seconds
+    Future.delayed(const Duration(seconds: 3), () async {
+      final isOnboardingCompleted = await SharedPreferencesServiceExtension.isOnboardingCompleted();
+      final token = await SharedPreferencesService.getToken();
+
+      if (!isOnboardingCompleted) {
+        Get.off(() => const OnBoardingScreen());
+      } else if (token != null && token.isNotEmpty) {
+        Get.off(() => HomeScreen());
+      } else {
+        Get.off(() => const AuthNavigator());
+      }
     });
   }
 

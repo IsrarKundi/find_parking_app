@@ -35,7 +35,6 @@ class AuthApis {
         },
         body: body,
       );
-
       final responseData = jsonDecode(response.body);
 
       if ((response.statusCode == 200 || response.statusCode == 201) && responseData['success'] == true) {

@@ -138,11 +138,52 @@ class _ProfileScreenState extends State<ProfileScreen> {
                     /// Logout Button
                     CustomElevatedButton(
                       text: 'Logout',
-                      onPressed: () => _authController.logout(),
+                      onPressed: () async {
+                        final result = await Get.dialog<bool>(
+                          AlertDialog(
+                            title: Text(
+                              'Confirm Logout',
+                              style: AppTextStyles.titleBoldUpper.copyWith(
+                                color: AppColor.blackColor,
+                                fontSize: 18.sp,
+                              ),
+                            ),
+                            content: Text(
+                              'Are you sure you want to logout? This will clear all your data.',
+                              style: AppTextStyles.bodyRegularUpper.copyWith(
+                                color: AppColor.darkGreyColor,
+                                fontSize: 14.sp,
+                              ),
+                            ),
+                            actions: [
+                              TextButton(
+                                onPressed: () => Get.back(result: false),
+                                child: Text(
+                                  'Cancel',
+                                  style: AppTextStyles.bodyRegularUpper.copyWith(
+                                    color: AppColor.primaryColor,
+                                  ),
+                                ),
+                              ),
+                              TextButton(
+                                onPressed: () => Get.back(result: true),
+                                child: Text(
+                                  'Logout',
+                                  style: AppTextStyles.bodyRegularUpper.copyWith(
+                                    color: Colors.red,
+                                  ),
+                                ),
+                              ),
+                            ],
+                          ),
+                        );
+
+                        if (result == true) {
+                          await _authController.logout();
+                        }
+                      },
                       backgroundColor: Colors.white,
                       textColor: Colors.green,
-                      
-                      
                     ),
                   ],
                 ),
