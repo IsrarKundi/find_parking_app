@@ -8,8 +8,7 @@ import 'package:responsive_sizer/responsive_sizer.dart';
 import '../../../controller/utils/color.dart';
 import '../../../controller/utils/shared_preferences_service.dart';
 import '../../../controller/utils/text_styles.dart';
-import '../../../data/dummy_parking_data.dart';
-import '../../../models/parking_model.dart';
+import '../../../controller/getx_controllers/user_home_controller.dart';
 import '../../custom_widgets/custom_widgets.dart';
 import '../parking_details/parking_details_screen.dart';
 import '../profile/profile_screen.dart';
@@ -23,44 +22,40 @@ class HomeScreen extends StatefulWidget {
 
 class _HomeScreenState extends State<HomeScreen> {
   final Completer<GoogleMapController> _controller = Completer<GoogleMapController>();
-  final Set<Marker> _markers = {};
   final _userProfileImage = RxString('');
+  final UserHomeController _homeController = Get.put(UserHomeController());
 
-  static const CameraPosition _kPeshawar = CameraPosition(
-    target: LatLng(34.0151, 71.5249),
+  CameraPosition get _initialPosition => CameraPosition(
+    target: LatLng(
+      _homeController.userLat.value,
+      _homeController.userLng.value,
+    ),
     zoom: 14.0,
   );
 
   @override
   void initState() {
     super.initState();
-    _loadMarkers();
     _loadUserImage();
+    _initializeMap();
+  }
+
+  Future<void> _initializeMap() async {
+    // Wait for the controller to be initialized with user location
+    await _homeController.loadUserLocation();
+    if (!mounted) return;
+
+    // Once we have the controller and user location, move the camera
+    final GoogleMapController controller = await _controller.future;
+    controller.animateCamera(
+      CameraUpdate.newCameraPosition(_initialPosition),
+    );
   }
 
   Future<void> _loadUserImage() async {
     final image = await SharedPreferencesService.getUserImage();
     if (mounted) {
       _userProfileImage.value = image ?? '';
-    }
-  }
-
-  void _loadMarkers() {
-    for (Parking parking in dummyParkings) {
-      _markers.add(
-        Marker(
-          markerId: MarkerId(parking.id),
-          position: LatLng(parking.latitude, parking.longitude),
-          infoWindow: InfoWindow(
-            title: parking.name,
-            snippet: 'Available: ${parking.availableSpots} spots',
-          ),
-          icon: BitmapDescriptor.defaultMarkerWithHue(BitmapDescriptor.hueOrange),
-          onTap: () {
-            Get.to(() => ParkingDetailsScreen(parking: parking));
-          },
-        ),
-      );
     }
   }
 
@@ -117,22 +112,73 @@ class _HomeScreenState extends State<HomeScreen> {
           ),
         ],
       ),
-      body: GoogleMap(
-        mapType: MapType.normal,
-        initialCameraPosition: _kPeshawar,
-        onMapCreated: (GoogleMapController controller) {
-          _controller.complete(controller);
-        },
-        markers: _markers,
-        myLocationEnabled: true,
-        myLocationButtonEnabled: true,
-        zoomControlsEnabled: true,
-        compassEnabled: true,
+      body: Stack(
+        children: [
+         
+             Obx(() => GoogleMap(
+              mapType: MapType.normal,
+              initialCameraPosition: _initialPosition,
+              onMapCreated: (GoogleMapController controller) {
+                _controller.complete(controller);
+              },
+              markers: _homeController.markers.toSet(),
+              myLocationEnabled: true,
+              myLocationButtonEnabled: true,
+              zoomControlsEnabled: true,
+              compassEnabled: true,
+            )),
+          // Distance selector dropdown
+          Positioned(
+            top: 16,
+            right: 16,
+            child: Container(
+              padding: EdgeInsets.symmetric(horizontal: 12),
+              decoration: BoxDecoration(
+                color: Colors.white,
+                borderRadius: BorderRadius.circular(8),
+                boxShadow: [
+                  BoxShadow(
+                    color: Colors.black.withOpacity(0.1),
+                    blurRadius: 8,
+                    offset: Offset(0, 2),
+                  ),
+                ],
+              ),
+              child: Obx(() => DropdownButton<int>(
+                value: _homeController.selectedDistance.value,
+                items: _homeController.distanceOptions
+                    .map((int distance) => DropdownMenuItem<int>(
+                          value: distance,
+                          child: Text('${distance}km radius'),
+                        ))
+                    .toList(),
+                onChanged: (int? newValue) {
+                  if (newValue != null) {
+                    _homeController.updateDistance(newValue);
+                  }
+                },
+                underline: SizedBox(),
+                icon: Icon(Icons.tune, color: AppColor.primaryColor),
+              )),
+            ),
+          ),
+          // Loading indicator
+          Obx(() {
+            if (_homeController.isLoading.value) {
+              return Center(
+                child: CircularProgressIndicator(
+                  color: AppColor.primaryColor,
+                ),
+              );
+            }
+            return SizedBox();
+          }),
+        ],
       ),
       floatingActionButton: FloatingActionButton(
         onPressed: () async {
           final GoogleMapController controller = await _controller.future;
-          controller.animateCamera(CameraUpdate.newCameraPosition(_kPeshawar));
+          controller.animateCamera(CameraUpdate.newCameraPosition(_initialPosition));
         },
         backgroundColor: AppColor.primaryColor,
         child: Icon(
