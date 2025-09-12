@@ -57,15 +57,15 @@ class Datum {
     });
 
     factory Datum.fromJson(Map<String, dynamic> json) => Datum(
-        id: json["_id"],
-        username: json["username"],
-        email: json["email"],
-        lng: json["lng"]?.toDouble(),
-        lat: json["lat"]?.toDouble(),
-        image: json["image"],
-        availableParkingSpots: json["availableParkingSpots"],
-        totalParkingSlots: json["totalParkingSlots"],
-        pricePerSlot: json["pricePerSlot"],
+        id: json["_id"] ?? '',
+        username: json["username"] ?? '',
+        email: json["email"] ?? '',
+        lng: json["lng"]?.toDouble() ?? 0.0,
+        lat: json["lat"]?.toDouble() ?? 0.0,
+        image: json["image"] ?? '',
+        availableParkingSpots: json["availableParkingSpots"] ?? 0,
+        totalParkingSlots: json["totalParkingSlots"] ?? 0,
+        pricePerSlot: json["pricePerSlot"] ?? 0,
     );
 
     Map<String, dynamic> toJson() => {

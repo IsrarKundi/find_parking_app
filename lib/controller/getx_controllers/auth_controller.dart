@@ -3,6 +3,7 @@ import 'package:geolocator/geolocator.dart';
 import 'package:get/get.dart';
 import 'package:parking_app/views/screens/authentication/login_screen.dart';
 import 'package:parking_app/views/screens/home/home_screen.dart';
+import 'package:parking_app/views/screens/parking_dashboard/parking_dashboard_screen.dart';
 
 import '../api_services/auth_apis.dart';
 import '../utils/shared_preferences_service.dart';
@@ -181,6 +182,14 @@ class AuthController extends GetxController {
         final userData = response['data'];
         if (userData != null) {
           await SharedPreferencesService.saveUserData(userData);
+          final role = userData['role'] ?? 'user';
+          if (role == 'user') {
+            Get.offAll(HomeScreen());
+          } else {
+            Get.offAll(ParkingDashboardScreen());
+          }
+        } else {
+          Get.offAll(HomeScreen());
         }
 
         Get.snackbar(
@@ -190,8 +199,6 @@ class AuthController extends GetxController {
           backgroundColor: Colors.green,
           colorText: Colors.white,
         );
-        // Navigate to home
-        Get.offAll(HomeScreen());
       } else {
         Get.snackbar(
           'Error',

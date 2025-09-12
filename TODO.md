@@ -2,3 +2,7 @@
 - [ ] Update SplashScreen to check onboarding and auth token for navigation.
 - [ ] Modify ProfileScreen logout button to show confirmation popup.
 - [ ] Test the navigation flow for first-time user, logged-in user, and logout.
+- [x] Update auth_controller.dart login method to navigate based on role.
+- [x] Update splash_screen.dart to check role and navigate accordingly.
+- [x] Add necessary imports for ParkingDashboardScreen.
+- [ ] Test the navigation flow for both user and parking roles.

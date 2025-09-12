@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:parking_app/views/screens/home/home_screen.dart';
+import 'package:parking_app/views/screens/parking_dashboard/parking_dashboard_screen.dart';
 import 'package:responsive_sizer/responsive_sizer.dart';
 import '../../../controller/utils/color.dart';
 import '../../../controller/utils/text_styles.dart';
@@ -45,7 +46,13 @@ class _SplashScreenState extends State<SplashScreen>
       if (!isOnboardingCompleted) {
         Get.off(() => const OnBoardingScreen());
       } else if (token != null && token.isNotEmpty) {
-        Get.off(() => HomeScreen());
+        final userData = await SharedPreferencesService.getUserData();
+        final role = userData['role'] ?? 'user';
+        if (role == 'user') {
+          Get.off(() => HomeScreen());
+        } else {
+          Get.off(() => ParkingDashboardScreen());
+        }
       } else {
         Get.off(() => const AuthNavigator());
       }
