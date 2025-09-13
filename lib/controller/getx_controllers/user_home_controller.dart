@@ -137,10 +137,10 @@ Future<void> loadUserLocation() async {
   }
 
   // Make entry to parking
-  Future<void> makeEntryToParking(String carNumber) async {
+  Future<void> makeEntryToParking(String carNumber, String parkingId) async {
     isMakingPayment.value = true;
     try {
-      final response = await _userHomeApis.makeEntryToParking(carNumber: carNumber);
+      final response = await _userHomeApis.makeEntryToParking(carNumber: carNumber, parkingOwnerId: parkingId);
 
       if (response['success'] == true) {
         Get.snackbar(
@@ -150,6 +150,7 @@ Future<void> loadUserLocation() async {
           backgroundColor: Colors.green,
           colorText: Colors.white,
         );
+        findParkingLots();
       } else {
         Get.snackbar(
           'Error',

@@ -123,6 +123,7 @@ class _HomeScreenState extends State<HomeScreen> {
                   destinationLng: position.longitude,
                   destinationName: parking.username,
                   parkingPrice: parking.pricePerSlot.toDouble(),
+                  parkingId: parking.id,
                 ));
               },
               horizontalPadding: 1.h,

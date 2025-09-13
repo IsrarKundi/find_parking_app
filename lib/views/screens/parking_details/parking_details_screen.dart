@@ -100,6 +100,7 @@ class ParkingDetailsScreen extends StatelessWidget {
                         destinationLng: parking.longitude,
                         destinationName: parking.name,
                         parkingPrice: parking.price.toDouble(),
+                        parkingId: parking.id,
                       ));
                     },
                   ),

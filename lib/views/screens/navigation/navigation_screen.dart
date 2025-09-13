@@ -18,6 +18,7 @@ class NavigationScreen extends StatefulWidget {
   final double destinationLng;
   final String destinationName;
   final double parkingPrice; // New field for price
+  final String parkingId;
 
   const NavigationScreen({
     super.key,
@@ -25,6 +26,7 @@ class NavigationScreen extends StatefulWidget {
     required this.destinationLng,
     required this.destinationName,
     required this.parkingPrice, // Require price
+    required this.parkingId,
   });
 
   @override
@@ -278,7 +280,7 @@ class _NavigationScreenState extends State<NavigationScreen> {
                   shape: RoundedRectangleBorder(
                     borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
                   ),
-                  builder: (context) => PaymentBottomSheet(parkingPrice: widget.parkingPrice),
+                  builder: (context) => PaymentBottomSheet(parkingPrice: widget.parkingPrice, parkingId: widget.parkingId,),
                 );
               },
             ),

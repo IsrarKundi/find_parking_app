@@ -9,8 +9,9 @@ import '../../controller/utils/text_styles.dart';
 
 class PaymentBottomSheet extends StatefulWidget {
   final double parkingPrice;
+  final String parkingId;
 
-  const PaymentBottomSheet({super.key, required this.parkingPrice});
+  const PaymentBottomSheet({super.key, required this.parkingPrice, required this.parkingId});
 
   @override
   State<PaymentBottomSheet> createState() => _PaymentBottomSheetState();
@@ -137,7 +138,7 @@ class _PaymentBottomSheetState extends State<PaymentBottomSheet> {
                 onPressed: () async {
                   if (_carNumberController.text.isNotEmpty) {
                     await _controller
-                        .makeEntryToParking(_carNumberController.text);
+                        .makeEntryToParking(_carNumberController.text, widget.parkingId );
                     if (_controller.isMakingPayment.value == false) {
                       Navigator.of(context).pop();
                     }

@@ -212,6 +212,13 @@ class _ParkingDashboardScreenState extends State<ParkingDashboardScreen> {
                   );
                 },
               ),
+              SizedBox(height: 2.h),
+              CustomElevatedButton(
+                text: 'Show Entries',
+                onPressed: () {
+                  // Get.to(() => ParkingEntriesScreen());
+                },
+              ),
             ],
           ),
         );

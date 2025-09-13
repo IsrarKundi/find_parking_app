@@ -56,6 +56,7 @@ class UserHomeApis {
   // Make entry to parking
   Future<Map<String, dynamic>> makeEntryToParking({
     required String carNumber,
+    required String parkingOwnerId,
   }) async {
     try {
       log("Making entry to parking with car number: $carNumber");
@@ -75,7 +76,7 @@ class UserHomeApis {
           'Authorization': 'Bearer $token',
         },
         body: jsonEncode({
-          "parkingOwnerId": "68c3407cc1daac464c966d89",
+          "parkingOwnerId": parkingOwnerId,
           "carNumber": carNumber,
         }),
       );
