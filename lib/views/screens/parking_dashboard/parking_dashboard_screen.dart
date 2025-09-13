@@ -201,61 +201,7 @@ class _ParkingDashboardScreenState extends State<ParkingDashboardScreen> {
                 color: Colors.green,
                 fullWidth: true,
               ),
-              SizedBox(height: 3.h),
-
-              // Info Card
-              Card(
-                elevation: 6,
-                shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(18),
-                ),
-                child: Container(
-                  width: double.infinity,
-                  padding: EdgeInsets.all(4.w),
-                  decoration: BoxDecoration(
-                    borderRadius: BorderRadius.circular(18),
-                    gradient: LinearGradient(
-                      colors: [
-                        AppColor.primaryColor.withOpacity(0.1),
-                        AppColor.primaryColor.withOpacity(0.05)
-                      ],
-                      begin: Alignment.topLeft,
-                      end: Alignment.bottomRight,
-                    ),
-                  ),
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Row(
-                        children: [
-                          Icon(
-                            Icons.info_outline,
-                            color: AppColor.primaryColor,
-                            size: 22.sp,
-                          ),
-                          SizedBox(width: 2.w),
-                          Text(
-                            'Parking Status',
-                            style: AppTextStyles.titleBoldUpper.copyWith(
-                              fontSize: 18.sp,
-                              color: AppColor.primaryColor,
-                            ),
-                          ),
-                        ],
-                      ),
-                      SizedBox(height: 1.5.h),
-                      Text(
-                        'Easily monitor and manage your parking slots, adjust pricing, and track real-time availability for a better customer experience.',
-                        style: AppTextStyles.bodyRegularUpper.copyWith(
-                          fontSize: 14.sp,
-                          color: AppColor.darkGreyColor,
-                          height: 1.4,
-                        ),
-                      ),
-                    ],
-                  ),
-                ),
-              ),
+             
               SizedBox(height: 3.h),
               CustomElevatedButton(
                 text: 'Update Parking Info',

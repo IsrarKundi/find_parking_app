@@ -1,8 +1,4 @@
-- [ ] Add onboarding_completed flag to SharedPreferencesService.
-- [ ] Update SplashScreen to check onboarding and auth token for navigation.
-- [ ] Modify ProfileScreen logout button to show confirmation popup.
-- [ ] Test the navigation flow for first-time user, logged-in user, and logout.
-- [x] Update auth_controller.dart login method to navigate based on role.
-- [x] Update splash_screen.dart to check role and navigate accordingly.
-- [x] Add necessary imports for ParkingDashboardScreen.
-- [ ] Test the navigation flow for both user and parking roles.
+- [x] Create lib/views/widgets/payment_bottom_sheet.dart
+- [x] Update lib/controller/api_services/user_home_apis.dart to add makeEntryToParking method
+ - [x] Update lib/controller/getx_controllers/user_home_controller.dart to add makeEntryToParking method
+ - [x] Update lib/views/screens/navigation/navigation_screen.dart to add Make Payment button and show bottom sheet

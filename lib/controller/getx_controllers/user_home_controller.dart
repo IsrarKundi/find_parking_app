@@ -12,6 +12,7 @@ class UserHomeController extends GetxController {
   
   // Observable variables
   var isLoading = false.obs;
+  var isMakingPayment = false.obs;
   var parkingLots = Rx<GetParkingLotsModel?>(null);
   var selectedDistance = 10.obs; // Default distance in km
   var markers = RxSet<Marker>();
@@ -133,5 +134,41 @@ Future<void> loadUserLocation() async {
   Future<void> updateDistance(int distance) async {
     selectedDistance.value = distance;
     await findParkingLots();
+  }
+
+  // Make entry to parking
+  Future<void> makeEntryToParking(String carNumber) async {
+    isMakingPayment.value = true;
+    try {
+      final response = await _userHomeApis.makeEntryToParking(carNumber: carNumber);
+
+      if (response['success'] == true) {
+        Get.snackbar(
+          'Success',
+          response['message'] ?? 'Payment successful',
+          snackPosition: SnackPosition.BOTTOM,
+          backgroundColor: Colors.green,
+          colorText: Colors.white,
+        );
+      } else {
+        Get.snackbar(
+          'Error',
+          response['message'] ?? 'Payment failed',
+          snackPosition: SnackPosition.BOTTOM,
+          backgroundColor: Colors.red,
+          colorText: Colors.white,
+        );
+      }
+    } catch (e) {
+      Get.snackbar(
+        'Error',
+        'Failed to make payment: $e',
+        snackPosition: SnackPosition.BOTTOM,
+        backgroundColor: Colors.red,
+        colorText: Colors.white,
+      );
+    } finally {
+      isMakingPayment.value = false;
+    }
   }
 }

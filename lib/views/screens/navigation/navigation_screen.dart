@@ -5,21 +5,26 @@ import 'package:geolocator/geolocator.dart' as geo;
 import 'dart:async';
 import 'package:flutter/services.dart';
 import 'dart:ui' as ui;
+import 'package:get/get.dart';
 
 import '../../../controller/utils/color.dart';
 import '../../../controller/utils/text_styles.dart';
 import '../../../controller/services/mapbox_service.dart';
+import '../../../views/widgets/payment_bottom_sheet.dart';
+import '../../../views/custom_widgets/custom_widgets.dart';
 
 class NavigationScreen extends StatefulWidget {
   final double destinationLat;
   final double destinationLng;
   final String destinationName;
+  final double parkingPrice; // New field for price
 
   const NavigationScreen({
     super.key,
     required this.destinationLat,
     required this.destinationLng,
     required this.destinationName,
+    required this.parkingPrice, // Require price
   });
 
   @override
@@ -253,47 +258,76 @@ class _NavigationScreenState extends State<NavigationScreen> {
   onMapCreated: _onMapCreated,
 ),
           Positioned(
+            bottom: 70,
+            left: 16,
+            right: 16,
+            child: CustomElevatedButton(
+              backgroundColor: Colors.red,
+              borderColor: Colors.red,
+              
+              verticalPadding: 8,
+              text: 'Make Payment',
+              textStyle: TextStyle(
+                  fontSize: 18.sp,
+                  color: AppColor.whiteColor,
+                ),
+              onPressed: () {
+                showModalBottomSheet(
+                  context: context,
+                  isScrollControlled: true,
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
+                  ),
+                  builder: (context) => PaymentBottomSheet(parkingPrice: widget.parkingPrice),
+                );
+              },
+            ),
+          ),
+          Positioned(
             bottom: 16,
             left: 16,
             right: 16,
-            child: ElevatedButton(
-              onPressed: () async {
-                setState(() {
-                  _isNavigating = !_isNavigating;
-                });
-                if (_isNavigating) {
-                  await _updateRoute();
-                  await _zoomToRoute();
-                } else {
-                  await _clearRoute();
-                  await _zoomOut();
-                }
-              },
-              style: ElevatedButton.styleFrom(
-                backgroundColor: AppColor.primaryColor,
-                padding: EdgeInsets.symmetric(vertical: 16),
-              ),
-              child: Text(
-                _isNavigating ? 'Stop Navigation' : 'Start Navigation',
-                style: TextStyle(
-                  fontSize: 18.sp,
-                  color: AppColor.whiteColor,
+            child: SizedBox(
+              height: 42,
+              child: ElevatedButton(
+                onPressed: () async {
+                  setState(() {
+                    _isNavigating = !_isNavigating;
+                  });
+                  if (_isNavigating) {
+                    await _updateRoute();
+                    await _zoomToRoute();
+                  } else {
+                    await _clearRoute();
+                    await _zoomOut();
+                  }
+                },
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: AppColor.primaryColor,
+                  padding: EdgeInsets.symmetric(vertical: 6),
+                ),
+                child: Text(
+                  _isNavigating ? 'Stop Navigation' : 'Start Navigation',
+                  style: TextStyle(
+                    fontSize: 18.sp,
+                    color: AppColor.whiteColor,
+                  ),
                 ),
               ),
             ),
           ),
-          Positioned(
-            bottom: 100,
-            right: 16,
-            child: FloatingActionButton(
-              onPressed: _moveCameraToUser,
-              backgroundColor: AppColor.primaryColor,
-              child: Icon(
-                Icons.my_location,
-                color: AppColor.whiteColor,
-              ),
-            ),
-          ),
+          // Positioned(
+          //   bottom: 100,
+          //   right: 16,
+          //   child: FloatingActionButton(
+          //     onPressed: _moveCameraToUser,
+          //     backgroundColor: AppColor.primaryColor,
+          //     child: Icon(
+          //       Icons.my_location,
+          //       color: AppColor.whiteColor,
+          //     ),
+          //   ),
+          // ),
         ],
       ),
     );

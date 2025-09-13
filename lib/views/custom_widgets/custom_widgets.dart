@@ -118,6 +118,8 @@ class CustomElevatedButton extends StatelessWidget {
   final TextStyle? textStyle;
   final bool? isLoading;
   final Color? backgroundColor;
+  final Color? borderColor;
+
   final Color? textColor;
   final double? horizontalPadding;
   final double? verticalPadding;
@@ -132,6 +134,7 @@ class CustomElevatedButton extends StatelessWidget {
     this.verticalPadding,
     this.isLoading,
     this.textStyle,
+    this.borderColor,
   });
 
   @override
@@ -149,7 +152,7 @@ class CustomElevatedButton extends StatelessWidget {
                   horizontal: horizontalPadding ?? 2.h,
                   vertical: verticalPadding ?? 0.h),
               shape: RoundedRectangleBorder(
-                side: BorderSide(color: AppColor.primaryColor, width: 1.px),
+                side: BorderSide(color: borderColor ?? AppColor.primaryColor, width: 1.px),
                 borderRadius: BorderRadius.circular(40.px),
               ),
             ),

@@ -87,16 +87,16 @@ class _HomeScreenState extends State<HomeScreen> {
             Text(
               'Available Spots: ${parking.availableParkingSpots}',
               style: AppTextStyles.bodyRegularUpper.copyWith(
-                color: AppColor.darkGreyColor,
+                color: AppColor.blackColor, 
                 fontSize: 14.sp,
               ),
             ),
             getVerticalSpace(height: 0.5.h),
             Text(
-              'Price: Rs. ${parking.pricePerSlot}/hour',
+              'Price: Rs. ${parking.pricePerSlot}',
               style: AppTextStyles.bodyRegularUpper.copyWith(
-                color: AppColor.darkGreyColor,
-                fontSize: 14.sp,
+                color: AppColor.blackColor,
+                fontSize: 15.sp,
               ),
             ),
           ],
@@ -122,6 +122,7 @@ class _HomeScreenState extends State<HomeScreen> {
                   destinationLat: position.latitude,
                   destinationLng: position.longitude,
                   destinationName: parking.username,
+                  parkingPrice: parking.pricePerSlot.toDouble(),
                 ));
               },
               horizontalPadding: 1.h,
