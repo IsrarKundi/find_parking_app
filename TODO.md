@@ -1,4 +1,4 @@
-- [x] Create lib/views/widgets/payment_bottom_sheet.dart
-- [x] Update lib/controller/api_services/user_home_apis.dart to add makeEntryToParking method
- - [x] Update lib/controller/getx_controllers/user_home_controller.dart to add makeEntryToParking method
- - [x] Update lib/views/screens/navigation/navigation_screen.dart to add Make Payment button and show bottom sheet
+# TODO List for Adding "Show Entries" Button to Parking Dashboard
+
+- [x] Add "Show Entries" button to parking_dashboard_screen.dart
+- [x] Update parking_controller.dart with observables and methods for parking entries

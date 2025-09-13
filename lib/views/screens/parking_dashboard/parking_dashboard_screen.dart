@@ -9,6 +9,7 @@ import '../../../controller/utils/color.dart';
 import '../../../controller/utils/text_styles.dart';
 import '../../../controller/utils/shared_preferences_service.dart';
 import '../profile/profile_screen.dart';
+import '../parking_entries/parking_entries.dart';
 
 class ParkingDashboardScreen extends StatefulWidget {
   ParkingDashboardScreen({super.key});
@@ -216,7 +217,7 @@ class _ParkingDashboardScreenState extends State<ParkingDashboardScreen> {
               CustomElevatedButton(
                 text: 'Show Entries',
                 onPressed: () {
-                  // Get.to(() => ParkingEntriesScreen());
+                  Get.to(() => ParkingEntriesScreen());
                 },
               ),
             ],

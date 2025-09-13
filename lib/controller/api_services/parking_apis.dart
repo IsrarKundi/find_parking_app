@@ -11,22 +11,20 @@ class ParkingApis {
     final url = Uri.parse('$baseUrl/parking/get-parking-info');
 
     try {
-            final token = await SharedPreferencesService.getToken();
+      final token = await SharedPreferencesService.getToken();
 
       final response = await http.get(
         url,
-         headers: {
+        headers: {
           'Content-Type': 'application/json',
           'Authorization': 'Bearer $token',
         },
-        );
+      );
       log('Parking Info Response: ${response.body}');
       if (response.statusCode == 200) {
         final data = json.decode(response.body);
-        // The data field is an object, not a list, so parse accordingly
         if (data['success'] == true) {
           final parkingData = data['data'];
-          // If parkingData is a map, convert to list with one element
           List<dynamic> parkingList;
           if (parkingData is List) {
             parkingList = parkingData;
@@ -35,7 +33,6 @@ class ParkingApis {
           } else {
             parkingList = [];
           }
-          // Create a new map with data as list
           final newData = {
             "success": data["success"],
             "message": data["message"],
@@ -79,6 +76,82 @@ class ParkingApis {
       }
     } catch (e) {
       throw Exception('Error setting parking info: $e');
+    }
+  }
+
+  // New method to get parking entries
+  Future<Map<String, dynamic>> getParkingEntries() async {
+    try {
+      final token = await SharedPreferencesService.getToken();
+
+      if (token == null) {
+        return {
+          'success': false,
+          'message': 'Authentication token not found',
+        };
+      }
+
+      final response = await http.get(
+        Uri.parse('$baseUrl/parking/get-parking-entries'),
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': 'Bearer $token',
+        },
+      );
+
+      final responseData = jsonDecode(response.body);
+      if (response.statusCode == 200) {
+        return responseData;
+      } else {
+        return {
+          'success': false,
+          'message': responseData['message'] ?? 'Failed to fetch parking entries',
+        };
+      }
+    } catch (e) {
+      log("error $e");
+      return {
+        'success': false,
+        'message': 'Error fetching parking entries: $e',
+      };
+    }
+  }
+
+  // New method to exit parking entry
+  Future<Map<String, dynamic>> exitParkingEntry(String entryId) async {
+    try {
+      final token = await SharedPreferencesService.getToken();
+
+      if (token == null) {
+        return {
+          'success': false,
+          'message': 'Authentication token not found',
+        };
+      }
+
+      final response = await http.post(
+        Uri.parse('$baseUrl/parking/exit-parking-entry/$entryId'),
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': 'Bearer $token',
+        },
+      );
+
+      final responseData = jsonDecode(response.body);
+      if (response.statusCode == 200) {
+        return responseData;
+      } else {
+        return {
+          'success': false,
+          'message': responseData['message'] ?? 'Failed to exit parking entry',
+        };
+      }
+    } catch (e) {
+      log("error $e");
+      return {
+        'success': false,
+        'message': 'Error exiting parking entry: $e',
+      };
     }
   }
 }
